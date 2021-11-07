@@ -1,5 +1,5 @@
 .App {
-  height: 100vh;
+  min-height: 100vh;
   background-color: #1a202c;
   text-align: center;
 }
@@ -10,6 +10,7 @@
   flex-direction: column;
   justify-content: center;
   padding: 0 30px 0 30px;
+  padding-top: 5rem;
 }
 
 .authed-container {
@@ -21,6 +22,10 @@
 
 .header {
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
   font-size: 50px;
   font-weight: bold;
   color: white;
@@ -68,16 +73,20 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  position: absolute;
+  margin-top: 2rem;
   width: 100%;
   bottom: 0;
   left: 0;
-  padding-bottom: 45px;
 }
 
 .twitter-logo {
   width: 35px;
   height: 35px;
+}
+
+.marvel-logo {
+  width: 50px;
+  height: 50px;
 }
 
 .footer-text {
@@ -88,7 +97,7 @@
 
 .gif-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   grid-gap: 1.5rem;
   justify-items: center;
   margin: 0;
@@ -105,7 +114,7 @@
 
 .gif-item img {
   width: 100%;
-  height: 300px;
+  height: 200px;
   border-radius: 10px;
   object-fit: cover;
 }
