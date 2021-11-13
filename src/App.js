@@ -7,10 +7,13 @@ import twitterLogo from './assets/twitter-logo.svg';
 import marvelLogo from './assets/marvel.svg';
 
 import idl from './idl.json';
+import kp from './keypair.json';
 
-const { SystemProgram, Keypair } = web3;
+const { SystemProgram } = web3;
 
-let baseAccount = Keypair.generate();
+const arr = Object.values(kp._keypair.secretKey);
+const secret = new Uint8Array(arr);
+const baseAccount = web3.Keypair.fromSecretKey(secret);
 
 const programId = new PublicKey(idl.metadata.address);
 
@@ -29,13 +32,7 @@ const ARTISAN_LINK = `https://twitter.com/${ARTISAN_HANDLE}`;
 const App = () => {
   const [walletAddress, setWalletAddress] = useState(null);
   const [inputValue, setInputValue] = useState('');
-  const [gifList, setGifList] = useState(null);
-  const TEST_GIFS = [
-    'https://media.giphy.com/media/vBjLa5DQwwxbi/giphy.gif',
-    'https://media.giphy.com/media/6ra84Uso2hoir3YCgb/giphy.gif',
-    'https://media.giphy.com/media/h0gzUb0Wh1RIY/giphy.gif',
-    'https://media.giphy.com/media/93RImebAuEKkgRzcPr/giphy.gif',
-  ];
+  const [gifList, setGifList] = useState([]);
 
   const checkIfWalletIsConnected = async () => {
     try {
@@ -81,7 +78,7 @@ const App = () => {
   );
 
   const renderConnectedContainer = () => {
-    if (gifList == null || undefined) {
+    if (gifList === null) {
       return (
         <div className="connected-container">
           <button
@@ -103,7 +100,7 @@ const App = () => {
           >
             <input
               type="text"
-              placeholder="Enter gif link!"
+              placeholder="Enter gif link from GIPHY!"
               value={inputValue}
               onChange={onInputChange}
             />
@@ -112,11 +109,12 @@ const App = () => {
             </button>
           </form>
           <div className="gif-grid">
-            {gifList.map((item, index) => (
-              <div className="gif-item" key={index}>
-                <img src={item.gifLink} />
-              </div>
-            ))}
+            {gifList &&
+              gifList.map((item, index) => (
+                <div className="gif-item" key={index}>
+                  <img src={item.gifLink} alt={item.gifLink} />
+                </div>
+              ))}
           </div>
         </div>
       );
@@ -150,8 +148,9 @@ const App = () => {
     if (walletAddress) {
       console.log('Fetching GIF list...');
 
-      setGifList();
+      getGifList();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletAddress]);
 
   const onInputChange = (event) => {
@@ -193,10 +192,27 @@ const App = () => {
   };
 
   const sendGif = async () => {
-    if (inputValue.length > 0) {
-      console.log('Gif link:', inputValue);
-    } else {
-      console.log('Empty Input. Try Again.');
+    if (inputValue.length === 0) {
+      console.log('No gif link given!');
+      return;
+    }
+    console.log('Gif link:', inputValue);
+
+    try {
+      const provider = getProvider();
+      const program = new Program(idl, programId, provider);
+
+      await program.rpc.addGif(inputValue, {
+        accounts: {
+          baseAccount: baseAccount.publicKey,
+          user: provider.wallet.publicKey,
+        },
+      });
+      console.log('GIF succsessfully sent to Solana', inputValue);
+
+      await getGifList();
+    } catch (error) {
+      console.log('Error sending GIF:', error);
     }
   };
 
@@ -222,13 +238,20 @@ const App = () => {
           {walletAddress && renderConnectedContainer()}
         </div>
         <div className="footer-container">
-          <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
-          <a
-            className="footer-text"
-            href={TWITTER_LINK}
-            target="_blank"
-            rel="noreferrer"
-          >{`built on @${TWITTER_HANDLE}`}</a>
+          <div className="footer-top">
+            <img
+              alt="Twitter Logo"
+              className="twitter-logo"
+              src={twitterLogo}
+            />
+            <a
+              className="footer-text"
+              href={TWITTER_LINK}
+              target="_blank"
+              rel="noreferrer"
+            >{`built on @${TWITTER_HANDLE}`}</a>
+          </div>
+
           <a
             className="footer-text css-e657no"
             href={ARTISAN_LINK}
