@@ -226,10 +226,12 @@ const App = () => {
             height="300"
             frameBorder="0"
             class="giphy-embed"
+            title="Gif portal Gif"
             allowFullScreen
           ></iframe>
           <p className="header">
-            <img src={marvelLogo} className="marvel-logo" /> Marvel GIF Portal
+            <img src={marvelLogo} className="marvel-logo" alt="Marvel Logo" />{' '}
+            Marvel GIF Portal
           </p>
           <p className="sub-text">
             View your GIF collection in the metaverse ✨
